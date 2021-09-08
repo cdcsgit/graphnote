@@ -2,7 +2,10 @@ package com.blogspot.kotlinstudy.graphnote
 
 import java.awt.*
 import java.awt.event.*
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.*
 import javax.swing.*
 import javax.swing.table.DefaultTableModel
@@ -14,7 +17,10 @@ class MainUI(title: String) : JFrame() {
     private lateinit var mGraphViewPane: GraphViewPanel
     private lateinit var mInfoPane: JPanel
 
+    internal lateinit var mGraphTitleTF: JTextField
+
     private lateinit var mCtrlPane: JPanel
+    private lateinit var mCtrlTabbedPane: JTabbedPane
     private lateinit var mCmdPane: JPanel
     private lateinit var mCmdStartBtn: ColorButton
     private lateinit var mCmdStopBtn: ColorButton
@@ -33,7 +39,7 @@ class MainUI(title: String) : JFrame() {
     private lateinit var mFilePathLabel: JLabel
     private lateinit var mFilePathTF: JTextField
     private lateinit var mFilePathBtn: ColorButton
-    private lateinit var mFileRefreshBtn: JCheckBox
+    internal lateinit var mFileRefreshBtn: JCheckBox
 
     private lateinit var mInfoModel: DefaultTableModel
     private lateinit var mInfoTable: JTable
@@ -124,7 +130,6 @@ class MainUI(title: String) : JFrame() {
         mCmdClearSaveBtn.addActionListener(mActionHandler)
         mCmdClearSaveBtn.addMouseListener(mMouseHandler)
 
-        mCmdPane = JPanel(FlowLayout(FlowLayout.LEFT))
         mCmdPane = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
         mCmdPane.border = BorderFactory.createEmptyBorder(3, 3, 3, 3)
         mCmdPane.add(mCmdStartBtn)
@@ -154,12 +159,12 @@ class MainUI(title: String) : JFrame() {
 //        mCmdCombo.editor.editorComponent.addKeyListener(mKeyHandler)
 //        mCmdCombo.addItemListener(mItemHandler)
         mCmdCombo.editor.editorComponent.addMouseListener(mMouseHandler)
-        mCmdCombo.preferredSize = Dimension(200, 30)
-        mCmdCombo.border = BorderFactory.createEmptyBorder(3, 0, 3, 5)
+        mCmdCombo.preferredSize = Dimension(200, 28)
+        mCmdCombo.border = BorderFactory.createEmptyBorder(0, 0, 0, 5)
 
         mCmdPane.add(mCmdCombo)
 
-        mFileStartBtn = ColorButton("Open")
+        mFileStartBtn = ColorButton("Start")
         mFileStartBtn.addActionListener(mActionHandler)
         mFileStartBtn.addMouseListener(mMouseHandler)
 
@@ -175,8 +180,6 @@ class MainUI(title: String) : JFrame() {
         mFileClearSaveBtn.addActionListener(mActionHandler)
         mFileClearSaveBtn.addMouseListener(mMouseHandler)
 
-        mFilePane = JPanel(FlowLayout(FlowLayout.LEFT))
-        mFilePane = JPanel(FlowLayout(FlowLayout.LEFT))
         mFilePane = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
         mFilePane.border = BorderFactory.createEmptyBorder(3, 3, 3, 3)
         
@@ -205,10 +208,20 @@ class MainUI(title: String) : JFrame() {
         mFileRefreshBtn = JCheckBox("Auto Refresh", false)
         mFilePane.add(mFileRefreshBtn)
 
-        mCtrlPane = JPanel(GridLayout(2, 1))
-        mCtrlPane.background = Color(0xFF, 0x00, 0x00)
-        mCtrlPane.add(mCmdPane)
-        mCtrlPane.add(mFilePane)
+        mCtrlTabbedPane = JTabbedPane()
+        mCtrlTabbedPane.addTab("Run Cmd", mCmdPane);
+        mCtrlTabbedPane.addTab("Open File", mFilePane);
+        mCtrlTabbedPane.selectedComponent.foreground = Color.red
+
+        mCtrlPane = JPanel(GridLayout(1, 1))
+        mCtrlPane.add(mCtrlTabbedPane)
+
+        val insets = UIManager.getInsets("TabbedPane.contentBorderInsets")
+        insets.top = -1
+        insets.bottom = -1
+        insets.left = -1
+        insets.right = -1
+        UIManager.put("TabbedPane.contentBorderInsets", insets)
 
         mInfoPane = JPanel(BorderLayout())
         mInfoPane.background = Color(0x00, 0x00, 0xFF)
@@ -224,8 +237,17 @@ class MainUI(title: String) : JFrame() {
         mMainPane = JPanel(BorderLayout())
         mGraphViewPane = GraphViewPanel(mInfoTable)
 
+        mGraphTitleTF = JTextField("Title")
+        mGraphTitleTF.isEditable = false
+        mGraphTitleTF.preferredSize = Dimension(10, 40)
+        mGraphTitleTF.horizontalAlignment = JTextField.CENTER
+        var font = Font(mGraphTitleTF.font.fontName, Font.BOLD, 20)
+        mGraphTitleTF.font = font
+
         add(mCtrlPane, BorderLayout.NORTH)
         add(mMainPane, BorderLayout.CENTER)
+
+        mMainPane.add(mGraphTitleTF, BorderLayout.NORTH)
         mMainPane.add(mGraphViewPane, BorderLayout.CENTER)
         mMainPane.add(mInfoPane, BorderLayout.EAST)
 
@@ -349,7 +371,7 @@ class MainUI(title: String) : JFrame() {
         override fun actionPerformed(p0: ActionEvent?) {
             if (p0?.source == mCmdStartBtn) {
                 val cmd = "${mCmdDirTF.text}/${mCmdCombo.selectedItem.toString()}"
-                mGraphViewPane.startGraph(cmd)
+                mGraphViewPane.startGraphCmd(cmd)
             } else if (p0?.source == mCmdStopBtn) {
                 mGraphViewPane.stopGraph()
             } else if (p0?.source == mCmdDirBtn) {
@@ -371,6 +393,20 @@ class MainUI(title: String) : JFrame() {
                     }
                 } else {
                     println("No Selection ")
+                }
+            } else if (p0?.source == mFileStartBtn) {
+                mGraphViewPane.startGraphFile(mFilePathTF.text)
+            } else if (p0?.source == mFileStopBtn) {
+                mGraphViewPane.stopGraph()
+            } else if (p0?.source == mFilePathBtn) {
+                val fileDialog = FileDialog(this@MainUI, "Data file", FileDialog.LOAD)
+                fileDialog.isVisible = true
+                if (fileDialog.file != null) {
+                    val file = File(fileDialog.directory + fileDialog.file)
+                    println("adb command : " + file.absolutePath)
+                    mFilePathTF.text = file.absolutePath
+                } else {
+                    println("Cancel Open")
                 }
             }
         }

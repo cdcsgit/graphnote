@@ -13,6 +13,16 @@ import kotlin.system.exitProcess
 
 
 class MainUI(title: String) : JFrame() {
+    private lateinit var mMenuBar: JMenuBar
+    private lateinit var mMenuFile: JMenu
+    private lateinit var mItemFileOpen: JMenuItem
+    private lateinit var mItemFileOpenRecents: JMenu
+    private lateinit var mItemFileExit: JMenuItem
+    private lateinit var mMenuView: JMenu
+    private lateinit var mMenuHelp: JMenu
+    private lateinit var mItemHelp: JMenuItem
+    private lateinit var mItemAbout: JMenuItem
+
     private lateinit var mMainPane: JPanel
     private lateinit var mGraphViewPane: GraphViewPanel
     private lateinit var mInfoPane: JPanel
@@ -111,6 +121,38 @@ class MainUI(title: String) : JFrame() {
                 exit()
             }
         })
+
+        mMenuBar = JMenuBar()
+        mMenuFile = JMenu(Strings.FILE)
+
+        mItemFileOpen = JMenuItem(Strings.OPEN)
+        mItemFileOpen.addActionListener(mActionHandler)
+        mMenuFile.add(mItemFileOpen)
+
+        mItemFileOpenRecents = JMenu(Strings.OPEN_RECENTS)
+        mItemFileOpenRecents.addActionListener(mActionHandler)
+        mMenuFile.add(mItemFileOpenRecents)
+
+        mItemFileExit = JMenuItem(Strings.EXIT)
+        mItemFileExit.addActionListener(mActionHandler)
+        mMenuFile.add(mItemFileExit)
+        mMenuBar.add(mMenuFile)
+
+        mMenuView = JMenu(Strings.VIEW)
+        mMenuBar.add(mMenuView)
+
+        mMenuHelp = JMenu(Strings.HELP)
+
+        mItemHelp = JMenuItem(Strings.HELP)
+        mItemHelp.addActionListener(mActionHandler)
+        mMenuHelp.add(mItemHelp)
+
+        mItemAbout = JMenuItem(Strings.ABOUT)
+        mItemAbout.addActionListener(mActionHandler)
+        mMenuHelp.add(mItemAbout)
+        mMenuBar.add(mMenuHelp)
+
+        jMenuBar = mMenuBar
 
         layout = BorderLayout()
 
@@ -224,7 +266,6 @@ class MainUI(title: String) : JFrame() {
         UIManager.put("TabbedPane.contentBorderInsets", insets)
 
         mInfoPane = JPanel(BorderLayout())
-        mInfoPane.background = Color(0x00, 0x00, 0xFF)
         mInfoPane.preferredSize = Dimension(200, 100)
 
         val header = arrayOf("Series", "Value")
@@ -237,7 +278,7 @@ class MainUI(title: String) : JFrame() {
         mMainPane = JPanel(BorderLayout())
         mGraphViewPane = GraphViewPanel(mInfoTable)
 
-        mGraphTitleTF = JTextField("Title")
+        mGraphTitleTF = JTextField("Graph View Utility")
         mGraphTitleTF.isEditable = false
         mGraphTitleTF.preferredSize = Dimension(10, 40)
         mGraphTitleTF.horizontalAlignment = JTextField.CENTER
@@ -369,7 +410,15 @@ class MainUI(title: String) : JFrame() {
 
     internal inner class ActionHandler() : ActionListener {
         override fun actionPerformed(p0: ActionEvent?) {
-            if (p0?.source == mCmdStartBtn) {
+            if (p0?.source == mItemAbout) {
+                val aboutDialog = AboutDialog(this@MainUI)
+                aboutDialog.setLocationRelativeTo(this@MainUI)
+                aboutDialog.setVisible(true)
+            } else if (p0?.source == mItemHelp) {
+                val helpDialog = HelpDialog(this@MainUI)
+                helpDialog.setLocationRelativeTo(this@MainUI)
+                helpDialog.setVisible(true)
+            }else if (p0?.source == mCmdStartBtn) {
                 val cmd = "${mCmdDirTF.text}/${mCmdCombo.selectedItem.toString()}"
                 mGraphViewPane.startGraphCmd(cmd)
             } else if (p0?.source == mCmdStopBtn) {

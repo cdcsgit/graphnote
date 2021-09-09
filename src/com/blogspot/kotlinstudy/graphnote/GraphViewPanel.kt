@@ -297,10 +297,8 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
             }
             try {
                 if (itemValues.size == 3) {
-//                    println("$xVal, ${itemValues[1].toDouble()}, ${itemValues[2]}")
                     series!!.add(CustomXYDataItem(xVal, itemValues[1].toDouble(), itemValues[2]))
                 } else {
-//                    println("$xVal, ${itemValues[1].toDouble()}")
                     series!!.add(CustomXYDataItem(xVal, itemValues[1].toDouble(), ""))
                 }
             } catch (ex: SeriesException) {
@@ -433,8 +431,7 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
 
                 val itemList: ArrayList<TableItem> = ArrayList<TableItem>()
                 for (series in mSeriesCollection.series) {
-                    println(((series as XYSeries).items[0] as XYDataItem).yValue)
-                    for (item in series.items) {
+                    for (item in (series as XYSeries).items) {
                         if ((item as XYDataItem).xValue == xVal) {
                             itemList.add(TableItem(series.key as String, item.yValue))
                             break

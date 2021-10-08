@@ -86,6 +86,7 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
         mDomainAxis = mPlot.domainAxis
         mDomainAxis.isAutoRange = false
         mDomainAxis.setRange(mXStart, mXStart + mXRange)
+        println("createChartXY - Domain range " + mXStart + ", " + (mXStart + mXRange))
 
         val renderer = mPlot.getRenderer(0) as XYLineAndShapeRenderer
         renderer.useFillPaint = true
@@ -314,16 +315,24 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
             if (max > mXRange) {
                 max -= (mXRange - mXRangeMargin).toInt()
             }
-            mGraphSlider.maximum = max
-            mGraphSlider.value = max
 
-            mXStart = range.upperBound - mXRange + mXRangeMargin
-            if (mXStart < 0) {
-                mXStart = 0.0
+            mChangeHandler.active = false
+            if (mGraphSlider.maximum == mGraphSlider.value) {
+                mGraphSlider.maximum = max
+                mGraphSlider.value = max
+                mXStart = range.upperBound - mXRange + mXRangeMargin
+                if (mXStart < 0) {
+                    mXStart = 0.0
+                }
             }
+            else {
+                mGraphSlider.maximum = max
+            }
+            mChangeHandler.active = true
         }
 
         mDomainAxis.setRange(mXStart, mXStart + mXRange)
+        println("updateGraph - Domain range " + mXStart + ", " + (mXStart + mXRange))
 
         var annotation: XYTextAnnotation? = null
         val font = Font("SansSerif", Font.PLAIN, 12)
@@ -385,10 +394,23 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
     }
 
     internal inner class ChangeHandler() : ChangeListener {
+        var active = true
         override fun stateChanged(e: ChangeEvent?) {
-            val value: Int = mGraphSlider.getValue()
-            mXStart = value.toDouble()
-            mDomainAxis.setRange(mXStart, mXStart + mXRange)
+            if (active) {
+                println("TEST TEST " + (mGraphSlider.maximum - mGraphSlider.minimum)  + ", " + mXRange)
+                if ((mGraphSlider.maximum - mGraphSlider.minimum) > mXRange) {
+                    val value: Int = mGraphSlider.value
+                    mXStart = value.toDouble()
+                    mDomainAxis.setRange(mXStart, mXStart + mXRange)
+                }
+                else {
+                    mGraphSlider.value = mGraphSlider.maximum
+                }
+                println("stateChanged - Domain range " + mXStart + ", " + (mXStart + mXRange))
+            }
+            else {
+                println("stateChanged - disabled")
+            }
         }
     }
 

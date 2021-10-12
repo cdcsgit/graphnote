@@ -26,6 +26,7 @@ import javax.swing.event.ChangeListener
 import javax.swing.table.DefaultTableModel
 import kotlin.Comparator
 import kotlin.collections.ArrayList
+import kotlin.math.roundToInt
 
 
 class GraphViewPanel(infoTable: JTable) : JPanel() {
@@ -35,8 +36,8 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
     private var mChart: JFreeChart
     private lateinit var mDomainAxis: ValueAxis
     private lateinit var mPlot: XYPlot
-    private var mXRange = 80.0
-    private var mXRangeMargin = 5.0
+    private var mXRange = X_RANGE
+    private var mXRangeMargin = X_RANGE_MARGIN
     private var mXStart = 0.0
     private var mUpdateInterval = 100
     private val mChangeHandler = ChangeHandler()
@@ -46,6 +47,11 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
     private var mMinAnnotation = 5.0
     private var mStartXVal = 0.0
     private var mPrevX = 0.0
+
+    companion object {
+        private const val X_RANGE = 80.0
+        private const val X_RANGE_MARGIN = 5.0
+    }
 
     init {
         layout = BorderLayout()
@@ -61,7 +67,7 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
         mGraphSlider.addChangeListener(mChangeHandler)
         mGraphSlider.minimum = 0
         mGraphSlider.maximum = 0
-        mGraphSlider.value = mXStart.toInt()
+        mGraphSlider.value = 0
 
         add(mGraphPane, BorderLayout.CENTER)
         add(mGraphSlider, BorderLayout.SOUTH)
@@ -126,6 +132,12 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
         println("Cmd $cmd")
         if (mUpdateGraphThread == null) {
             mSeriesCollection.removeAllSeries()
+            mXStart = 0.0
+            mXRange = X_RANGE
+            mXRangeMargin = X_RANGE_MARGIN
+            mGraphSlider.minimum = 0
+            mGraphSlider.maximum = 0
+            mGraphSlider.value = 0
             mUpdateGraphThread = Thread(Runnable {
                 run {
                     try {
@@ -194,6 +206,12 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
         println("file $file")
         if (mUpdateGraphThread == null) {
             mSeriesCollection.removeAllSeries()
+            mXStart = 0.0
+            mXRange = X_RANGE
+            mXRangeMargin = X_RANGE_MARGIN
+            mGraphSlider.minimum = 0
+            mGraphSlider.maximum = 0
+            mGraphSlider.value = 0
             mUpdateGraphThread = Thread(Runnable {
                 run {
                     try {
@@ -311,16 +329,19 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
         val range = mSeriesCollection.getDomainBounds(false)
         if (range != null) {
             mGraphSlider.minimum = range.lowerBound.toInt()
-            var max = range.upperBound.toInt()
+            var max = (range.upperBound + mXRangeMargin).toInt()
             if (max > mXRange) {
-                max -= (mXRange - mXRangeMargin).toInt()
+                max -= mXRange.toInt()
+            }
+            else {
+                max = 0
             }
 
             mChangeHandler.active = false
-            if (mGraphSlider.maximum == mGraphSlider.value) {
+            if (max > 0 && mGraphSlider.maximum == mGraphSlider.value) {
                 mGraphSlider.maximum = max
                 mGraphSlider.value = max
-                mXStart = range.upperBound - mXRange + mXRangeMargin
+                mXStart = range.upperBound + mXRangeMargin - mXRange
                 if (mXStart < 0) {
                     mXStart = 0.0
                 }
@@ -372,6 +393,7 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
                 mPlot.rangeAxis.label = items[1]
                 mPlot.domainAxis.label = items[2]
                 mXRange = items[3].toDouble()
+                mXRangeMargin = ((X_RANGE_MARGIN * mXRange / X_RANGE) + 0.5).toInt().toDouble()
                 if (items.size >= 5) {
                     mMinYVal = items[4].toDouble()
                 }
@@ -397,8 +419,7 @@ class GraphViewPanel(infoTable: JTable) : JPanel() {
         var active = true
         override fun stateChanged(e: ChangeEvent?) {
             if (active) {
-                println("TEST TEST " + (mGraphSlider.maximum - mGraphSlider.minimum)  + ", " + mXRange)
-                if ((mGraphSlider.maximum - mGraphSlider.minimum) > mXRange) {
+                if (mGraphSlider.maximum > mGraphSlider.minimum) {
                     val value: Int = mGraphSlider.value
                     mXStart = value.toDouble()
                     mDomainAxis.setRange(mXStart, mXStart + mXRange)

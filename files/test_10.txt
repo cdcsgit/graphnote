@@ -1,0 +1,12 @@
+TITLE|Show CPU Usage : top -b -d 1
+SETTINGS|CPU|TIME|30|0.1|0.5
+1634023355|Total#9.5|6621-Xorg#2.3|456030-top#2.3|8274-terminator#1.6|456031-TopCpuUbuntuInt#1.6|6933-cinnamon#0.8
+1634023356|Total#0.7|453362-java#0.2|456030-top#0.2|6933-cinnamon#0.1|450628-java#0.1|453829-kworker/0:7-events#0.1|455124-conky#0.1|456031-TopCpuUbuntuInt#0.1
+1634023357|Total#1.0|6621-Xorg#0.4|456030-top#0.2|6933-cinnamon#0.1|8274-terminator#0.1|9324-chrome#0.1|453362-java#0.1
+1634023358|Total#1.1|1093-containerd#0.1|6621-Xorg#0.1|6933-cinnamon#0.1|7979-remmina#0.1|8274-terminator#0.1|9372-chrome#0.1|453362-java#0.1|456030-top#0.1
+1634023359|Total#0.7|6621-Xorg#0.2|456030-top#0.2|6933-cinnamon#0.1|453362-java#0.1
+1634023360|Total#0.6|450628-java#0.2|6621-Xorg#0.1|6933-cinnamon#0.1|8274-terminator#0.1|450491-adb#0.1|453362-java#0.1|456030-top#0.1
+1634023361|Total#1.1|6621-Xorg#0.2|456030-top#0.2|456031-TopCpuUbuntuInt#0.2|6933-cinnamon#0.1|8274-terminator#0.1|453362-java#0.1|455124-conky#0.1|455754-kworker/u17:2-i915_flip#0.1
+1634023362|Total#1.0|6621-Xorg#0.1|6933-cinnamon#0.1|7979-remmina#0.1|8274-terminator#0.1|9324-chrome#0.1|9372-chrome#0.1|453362-java#0.1|454061-kworker/6:2-pm#0.1|456030-top#0.1
+1634023363|Total#1.0|6621-Xorg#0.2|6933-cinnamon#0.1|9324-chrome#0.1|453362-java#0.1|453905-kworker/7:4-mm_percpu_wq#0.1|456030-top#0.1
+1634023364|Total#0.9|453362-java#0.2|456030-top#0.2|6621-Xorg#0.1|6933-cinnamon#0.1|8274-terminator#0.1|9372-chrome#0.1|450628-java#0.1|453819-kworker/1:1-mm_percpu_wq#0.1|455921-kworker/u16:2-events_power_efficient#0.1

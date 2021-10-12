@@ -296,11 +296,14 @@ class MainUI(title: String) : JFrame() {
 
         if (mCmdDirTF.text.isNotEmpty()) {
             val dir = File(mCmdDirTF.text)
-            val listFiles = dir.listFiles { param -> param.isFile && param.canExecute() }
+            val listFiles: Array<File>? = dir.listFiles { param -> param.isFile && param.canExecute() }
 
             mCmdCombo.removeAllItems()
-            for (item in listFiles) {
-                mCmdCombo.addItem(item.name)
+
+            if (listFiles != null) {
+                for (item in listFiles) {
+                    mCmdCombo.addItem(item.name)
+                }
             }
         }
         mCmdCombo.selectedItem = mConfigManager.mProperties[mConfigManager.ITEM_CMD_FILE] as? String
